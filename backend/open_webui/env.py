@@ -93,6 +93,15 @@ if WEBUI_NAME != "Open WebUI":
 
 WEBUI_FAVICON_URL = "https://openwebui.com/favicon.png"
 
+####################################
+# WEBUI_BASE_PATH (for subpath deployments)
+####################################
+
+# Base path for subpath deployments (e.g., '/webui' for example.com/webui)
+# Must start with '/' and not end with '/' (e.g., '/webui', not '/webui/')
+# Leave empty for root deployment
+WEBUI_BASE_PATH = os.environ.get("WEBUI_BASE_PATH", "").rstrip("/")
+
 TRUSTED_SIGNATURE_KEY = os.environ.get("TRUSTED_SIGNATURE_KEY", "")
 
 ####################################

@@ -490,6 +490,8 @@ from open_webui.env import (
     WEBUI_ADMIN_EMAIL,
     WEBUI_ADMIN_PASSWORD,
     WEBUI_ADMIN_NAME,
+    # Subpath deployment
+    WEBUI_BASE_PATH,
 )
 
 
@@ -1401,49 +1403,49 @@ app.add_middleware(
 )
 
 
-app.mount("/ws", socket_app)
+app.mount(f"{WEBUI_BASE_PATH}/ws", socket_app)
 
 
-app.include_router(ollama.router, prefix="/ollama", tags=["ollama"])
-app.include_router(openai.router, prefix="/openai", tags=["openai"])
+app.include_router(ollama.router, prefix=f"{WEBUI_BASE_PATH}/ollama", tags=["ollama"])
+app.include_router(openai.router, prefix=f"{WEBUI_BASE_PATH}/openai", tags=["openai"])
 
 
-app.include_router(pipelines.router, prefix="/api/v1/pipelines", tags=["pipelines"])
-app.include_router(tasks.router, prefix="/api/v1/tasks", tags=["tasks"])
-app.include_router(images.router, prefix="/api/v1/images", tags=["images"])
+app.include_router(pipelines.router, prefix=f"{WEBUI_BASE_PATH}/api/v1/pipelines", tags=["pipelines"])
+app.include_router(tasks.router, prefix=f"{WEBUI_BASE_PATH}/api/v1/tasks", tags=["tasks"])
+app.include_router(images.router, prefix=f"{WEBUI_BASE_PATH}/api/v1/images", tags=["images"])
 
-app.include_router(audio.router, prefix="/api/v1/audio", tags=["audio"])
-app.include_router(retrieval.router, prefix="/api/v1/retrieval", tags=["retrieval"])
+app.include_router(audio.router, prefix=f"{WEBUI_BASE_PATH}/api/v1/audio", tags=["audio"])
+app.include_router(retrieval.router, prefix=f"{WEBUI_BASE_PATH}/api/v1/retrieval", tags=["retrieval"])
 
-app.include_router(configs.router, prefix="/api/v1/configs", tags=["configs"])
+app.include_router(configs.router, prefix=f"{WEBUI_BASE_PATH}/api/v1/configs", tags=["configs"])
 
-app.include_router(auths.router, prefix="/api/v1/auths", tags=["auths"])
-app.include_router(users.router, prefix="/api/v1/users", tags=["users"])
-
-
-app.include_router(channels.router, prefix="/api/v1/channels", tags=["channels"])
-app.include_router(chats.router, prefix="/api/v1/chats", tags=["chats"])
-app.include_router(notes.router, prefix="/api/v1/notes", tags=["notes"])
+app.include_router(auths.router, prefix=f"{WEBUI_BASE_PATH}/api/v1/auths", tags=["auths"])
+app.include_router(users.router, prefix=f"{WEBUI_BASE_PATH}/api/v1/users", tags=["users"])
 
 
-app.include_router(models.router, prefix="/api/v1/models", tags=["models"])
-app.include_router(knowledge.router, prefix="/api/v1/knowledge", tags=["knowledge"])
-app.include_router(prompts.router, prefix="/api/v1/prompts", tags=["prompts"])
-app.include_router(tools.router, prefix="/api/v1/tools", tags=["tools"])
+app.include_router(channels.router, prefix=f"{WEBUI_BASE_PATH}/api/v1/channels", tags=["channels"])
+app.include_router(chats.router, prefix=f"{WEBUI_BASE_PATH}/api/v1/chats", tags=["chats"])
+app.include_router(notes.router, prefix=f"{WEBUI_BASE_PATH}/api/v1/notes", tags=["notes"])
 
-app.include_router(memories.router, prefix="/api/v1/memories", tags=["memories"])
-app.include_router(folders.router, prefix="/api/v1/folders", tags=["folders"])
-app.include_router(groups.router, prefix="/api/v1/groups", tags=["groups"])
-app.include_router(files.router, prefix="/api/v1/files", tags=["files"])
-app.include_router(functions.router, prefix="/api/v1/functions", tags=["functions"])
+
+app.include_router(models.router, prefix=f"{WEBUI_BASE_PATH}/api/v1/models", tags=["models"])
+app.include_router(knowledge.router, prefix=f"{WEBUI_BASE_PATH}/api/v1/knowledge", tags=["knowledge"])
+app.include_router(prompts.router, prefix=f"{WEBUI_BASE_PATH}/api/v1/prompts", tags=["prompts"])
+app.include_router(tools.router, prefix=f"{WEBUI_BASE_PATH}/api/v1/tools", tags=["tools"])
+
+app.include_router(memories.router, prefix=f"{WEBUI_BASE_PATH}/api/v1/memories", tags=["memories"])
+app.include_router(folders.router, prefix=f"{WEBUI_BASE_PATH}/api/v1/folders", tags=["folders"])
+app.include_router(groups.router, prefix=f"{WEBUI_BASE_PATH}/api/v1/groups", tags=["groups"])
+app.include_router(files.router, prefix=f"{WEBUI_BASE_PATH}/api/v1/files", tags=["files"])
+app.include_router(functions.router, prefix=f"{WEBUI_BASE_PATH}/api/v1/functions", tags=["functions"])
 app.include_router(
-    evaluations.router, prefix="/api/v1/evaluations", tags=["evaluations"]
+    evaluations.router, prefix=f"{WEBUI_BASE_PATH}/api/v1/evaluations", tags=["evaluations"]
 )
-app.include_router(utils.router, prefix="/api/v1/utils", tags=["utils"])
+app.include_router(utils.router, prefix=f"{WEBUI_BASE_PATH}/api/v1/utils", tags=["utils"])
 
 # SCIM 2.0 API for identity management
 if ENABLE_SCIM:
-    app.include_router(scim.router, prefix="/api/v1/scim/v2", tags=["scim"])
+    app.include_router(scim.router, prefix=f"{WEBUI_BASE_PATH}/api/v1/scim/v2", tags=["scim"])
 
 
 try:
@@ -1466,8 +1468,8 @@ if audit_level != AuditLevel.NONE:
 ##################################
 
 
-@app.get("/api/models")
-@app.get("/api/v1/models")  # Experimental: Compatibility with OpenAI API
+@app.get(f"{WEBUI_BASE_PATH}/api/models")
+@app.get(f"{WEBUI_BASE_PATH}/api/v1/models")  # Experimental: Compatibility with OpenAI API
 async def get_models(
     request: Request, refresh: bool = False, user=Depends(get_verified_user)
 ):
@@ -1518,7 +1520,7 @@ async def get_models(
     return {"data": models}
 
 
-@app.get("/api/models/base")
+@app.get(f"{WEBUI_BASE_PATH}/api/models/base")
 async def get_base_models(request: Request, user=Depends(get_admin_user)):
     models = await get_all_base_models(request, user=user)
     return {"data": models}
@@ -1529,8 +1531,8 @@ async def get_base_models(request: Request, user=Depends(get_admin_user)):
 ##################################
 
 
-@app.post("/api/embeddings")
-@app.post("/api/v1/embeddings")  # Experimental: Compatibility with OpenAI API
+@app.post(f"{WEBUI_BASE_PATH}/api/embeddings")
+@app.post(f"{WEBUI_BASE_PATH}/api/v1/embeddings")  # Experimental: Compatibility with OpenAI API
 async def embeddings(
     request: Request, form_data: dict, user=Depends(get_verified_user)
 ):
@@ -1556,8 +1558,8 @@ async def embeddings(
     return await generate_embeddings(request, form_data, user)
 
 
-@app.post("/api/chat/completions")
-@app.post("/api/v1/chat/completions")  # Experimental: Compatibility with OpenAI API
+@app.post(f"{WEBUI_BASE_PATH}/api/chat/completions")
+@app.post(f"{WEBUI_BASE_PATH}/api/v1/chat/completions")  # Experimental: Compatibility with OpenAI API
 async def chat_completion(
     request: Request,
     form_data: dict,
@@ -1800,7 +1802,7 @@ generate_chat_completions = chat_completion
 generate_chat_completion = chat_completion
 
 
-@app.post("/api/chat/completed")
+@app.post(f"{WEBUI_BASE_PATH}/api/chat/completed")
 async def chat_completed(
     request: Request, form_data: dict, user=Depends(get_verified_user)
 ):
@@ -1819,7 +1821,7 @@ async def chat_completed(
         )
 
 
-@app.post("/api/chat/actions/{action_id}")
+@app.post(f"{WEBUI_BASE_PATH}/api/chat/actions/{{action_id}}")
 async def chat_action(
     request: Request, action_id: str, form_data: dict, user=Depends(get_verified_user)
 ):
@@ -1838,7 +1840,7 @@ async def chat_action(
         )
 
 
-@app.post("/api/tasks/stop/{task_id}")
+@app.post(f"{WEBUI_BASE_PATH}/api/tasks/stop/{{task_id}}")
 async def stop_task_endpoint(
     request: Request, task_id: str, user=Depends(get_verified_user)
 ):
@@ -1849,12 +1851,12 @@ async def stop_task_endpoint(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 
-@app.get("/api/tasks")
+@app.get(f"{WEBUI_BASE_PATH}/api/tasks")
 async def list_tasks_endpoint(request: Request, user=Depends(get_verified_user)):
     return {"tasks": await list_tasks(request.app.state.redis)}
 
 
-@app.get("/api/tasks/chat/{chat_id}")
+@app.get(f"{WEBUI_BASE_PATH}/api/tasks/chat/{{chat_id}}")
 async def list_tasks_by_chat_id_endpoint(
     request: Request, chat_id: str, user=Depends(get_verified_user)
 ):
@@ -1875,7 +1877,7 @@ async def list_tasks_by_chat_id_endpoint(
 ##################################
 
 
-@app.get("/api/config")
+@app.get(f"{WEBUI_BASE_PATH}/api/config")
 async def get_app_config(request: Request):
     user = None
     token = None
@@ -2051,21 +2053,21 @@ class UrlForm(BaseModel):
     url: str
 
 
-@app.get("/api/webhook")
+@app.get(f"{WEBUI_BASE_PATH}/api/webhook")
 async def get_webhook_url(user=Depends(get_admin_user)):
     return {
         "url": app.state.config.WEBHOOK_URL,
     }
 
 
-@app.post("/api/webhook")
+@app.post(f"{WEBUI_BASE_PATH}/api/webhook")
 async def update_webhook_url(form_data: UrlForm, user=Depends(get_admin_user)):
     app.state.config.WEBHOOK_URL = form_data.url
     app.state.WEBHOOK_URL = app.state.config.WEBHOOK_URL
     return {"url": app.state.config.WEBHOOK_URL}
 
 
-@app.get("/api/version")
+@app.get(f"{WEBUI_BASE_PATH}/api/version")
 async def get_app_version():
     return {
         "version": VERSION,
@@ -2073,7 +2075,7 @@ async def get_app_version():
     }
 
 
-@app.get("/api/version/updates")
+@app.get(f"{WEBUI_BASE_PATH}/api/version/updates")
 async def get_app_latest_release_version(user=Depends(get_verified_user)):
     if not ENABLE_VERSION_UPDATE_CHECK:
         log.debug(
@@ -2097,12 +2099,12 @@ async def get_app_latest_release_version(user=Depends(get_verified_user)):
         return {"current": VERSION, "latest": VERSION}
 
 
-@app.get("/api/changelog")
+@app.get(f"{WEBUI_BASE_PATH}/api/changelog")
 async def get_app_changelog():
     return {key: CHANGELOG[key] for idx, key in enumerate(CHANGELOG) if idx < 5}
 
 
-@app.get("/api/usage")
+@app.get(f"{WEBUI_BASE_PATH}/api/usage")
 async def get_current_usage(user=Depends(get_verified_user)):
     """
     Get current usage statistics for Open WebUI.
@@ -2242,7 +2244,7 @@ async def register_client(request, client_id: str) -> bool:
     return True
 
 
-@app.get("/oauth/clients/{client_id}/authorize")
+@app.get(f"{WEBUI_BASE_PATH}/oauth/clients/{{client_id}}/authorize")
 async def oauth_client_authorize(
     client_id: str,
     request: Request,
@@ -2287,7 +2289,7 @@ async def oauth_client_authorize(
     return await oauth_client_manager.handle_authorize(request, client_id=client_id)
 
 
-@app.get("/oauth/clients/{client_id}/callback")
+@app.get(f"{WEBUI_BASE_PATH}/oauth/clients/{{client_id}}/callback")
 async def oauth_client_callback(
     client_id: str,
     request: Request,
@@ -2302,7 +2304,7 @@ async def oauth_client_callback(
     )
 
 
-@app.get("/oauth/{provider}/login")
+@app.get(f"{WEBUI_BASE_PATH}/oauth/{{provider}}/login")
 async def oauth_login(provider: str, request: Request):
     return await oauth_manager.handle_login(request, provider)
 
@@ -2313,8 +2315,8 @@ async def oauth_login(provider: str, request: Request):
 #    - This is considered insecure in general, as OAuth providers do not always verify email addresses
 # 3. If there is no user, and ENABLE_OAUTH_SIGNUP is true, create a user
 #    - Email addresses are considered unique, so we fail registration if the email address is already taken
-@app.get("/oauth/{provider}/login/callback")
-@app.get("/oauth/{provider}/callback")  # Legacy endpoint
+@app.get(f"{WEBUI_BASE_PATH}/oauth/{{provider}}/login/callback")
+@app.get(f"{WEBUI_BASE_PATH}/oauth/{{provider}}/callback")  # Legacy endpoint
 async def oauth_login_callback(
     provider: str,
     request: Request,
@@ -2324,7 +2326,7 @@ async def oauth_login_callback(
     return await oauth_manager.handle_callback(request, provider, response, db=db)
 
 
-@app.get("/manifest.json")
+@app.get(f"{WEBUI_BASE_PATH}/manifest.json")
 async def get_manifest_json():
     if app.state.EXTERNAL_PWA_MANIFEST_URL:
         return requests.get(app.state.EXTERNAL_PWA_MANIFEST_URL).json()
@@ -2358,7 +2360,7 @@ async def get_manifest_json():
         }
 
 
-@app.get("/opensearch.xml")
+@app.get(f"{WEBUI_BASE_PATH}/opensearch.xml")
 async def get_opensearch_xml():
     xml_content = rf"""
     <OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/" xmlns:moz="http://www.mozilla.org/2006/browser/search/">
@@ -2373,21 +2375,21 @@ async def get_opensearch_xml():
     return Response(content=xml_content, media_type="application/xml")
 
 
-@app.get("/health")
+@app.get(f"{WEBUI_BASE_PATH}/health")
 async def healthcheck():
     return {"status": True}
 
 
-@app.get("/health/db")
+@app.get(f"{WEBUI_BASE_PATH}/health/db")
 async def healthcheck_with_db():
     ScopedSession.execute(text("SELECT 1;")).all()
     return {"status": True}
 
 
-app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+app.mount(f"{WEBUI_BASE_PATH}/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 
-@app.get("/cache/{path:path}")
+@app.get(f"{WEBUI_BASE_PATH}/cache/{{path:path}}")
 async def serve_cache_file(
     path: str,
     user=Depends(get_verified_user),
@@ -2405,9 +2407,9 @@ def swagger_ui_html(*args, **kwargs):
     return get_swagger_ui_html(
         *args,
         **kwargs,
-        swagger_js_url="/static/swagger-ui/swagger-ui-bundle.js",
-        swagger_css_url="/static/swagger-ui/swagger-ui.css",
-        swagger_favicon_url="/static/swagger-ui/favicon.png",
+        swagger_js_url=f"{WEBUI_BASE_PATH}/static/swagger-ui/swagger-ui-bundle.js",
+        swagger_css_url=f"{WEBUI_BASE_PATH}/static/swagger-ui/swagger-ui.css",
+        swagger_favicon_url=f"{WEBUI_BASE_PATH}/static/swagger-ui/favicon.png",
     )
 
 
@@ -2415,8 +2417,10 @@ applications.get_swagger_ui_html = swagger_ui_html
 
 if os.path.exists(FRONTEND_BUILD_DIR):
     mimetypes.add_type("text/javascript", ".js")
+    # Mount SPA at the base path (or "/" if no base path)
+    spa_mount_path = WEBUI_BASE_PATH if WEBUI_BASE_PATH else "/"
     app.mount(
-        "/",
+        spa_mount_path,
         SPAStaticFiles(directory=FRONTEND_BUILD_DIR, html=True),
         name="spa-static-files",
     )

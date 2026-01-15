@@ -3,6 +3,10 @@ import * as child_process from 'node:child_process';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 import fs from 'node:fs';
 
+// Base path for subpath deployment (e.g., '/webui' for example.com/webui)
+// Set via WEBUI_BASE_PATH environment variable at build time
+const basePath = process.env.WEBUI_BASE_PATH || '';
+
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
 	// Consult https://kit.svelte.dev/docs/integrations#preprocessors
@@ -17,6 +21,9 @@ const config = {
 			assets: 'build',
 			fallback: 'index.html'
 		}),
+		paths: {
+			base: basePath
+		},
 		// poll for new version name every 60 seconds (to trigger reload mechanic in +layout.svelte)
 		version: {
 			name: (() => {

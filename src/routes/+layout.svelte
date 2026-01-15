@@ -104,7 +104,7 @@
 			reconnectionDelay: 1000,
 			reconnectionDelayMax: 5000,
 			randomizationFactor: 0.5,
-			path: '/ws/socket.io',
+			path: `${WEBUI_BASE_URL}/ws/socket.io`,
 			transports: enableWebsocket ? ['websocket'] : ['polling', 'websocket'],
 			auth: { token: localStorage.token }
 		});
@@ -351,7 +351,7 @@
 					if ($settings?.notificationSoundAlways ?? false) {
 						playingNotificationSound.set(true);
 
-						const audio = new Audio(`/audio/notification.mp3`);
+						const audio = new Audio(`${WEBUI_BASE_URL}/static/audio/notification.mp3`);
 						audio.play().finally(() => {
 							// Ensure the global state is reset after the sound finishes
 							playingNotificationSound.set(false);
@@ -821,7 +821,7 @@
 
 			document.getElementById('splash-screen')?.remove();
 
-			const audio = new Audio(`/audio/greeting.mp3`);
+			const audio = new Audio(`${WEBUI_BASE_URL}/static/audio/greeting.mp3`);
 			const playAudio = () => {
 				audio.play();
 				document.removeEventListener('click', playAudio);

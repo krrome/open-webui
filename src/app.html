@@ -2,10 +2,45 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
-		<link rel="icon" type="image/png" href="/static/favicon.png" crossorigin="use-credentials" />
+		<script>
+			// Base path for subpath deployment (e.g., '/webui')
+			// Detect base path from current URL by finding the path before known routes
+			(function() {
+				var path = window.location.pathname;
+				// Known SvelteKit routes that indicate the app root
+				var knownRoutes = ['/auth', '/c/', '/admin', '/workspace', '/playground', '/channels', '/error'];
+				var basePath = '';
+				for (var i = 0; i < knownRoutes.length; i++) {
+					var idx = path.indexOf(knownRoutes[i]);
+					if (idx > 0) {
+						basePath = path.substring(0, idx);
+						break;
+					}
+				}
+				// If at root of app (no known route in path), check if path ends with / or is just the base
+				if (!basePath && path !== '/') {
+					// Remove trailing slash and use as base if it's not a file
+					basePath = path.replace(/\/$/, '');
+					if (basePath.includes('.')) basePath = ''; // Has file extension, probably not a base path
+				}
+				window.__BASE_PATH__ = basePath;
+			})();
+		</script>
+		<script>
+			// Dynamically set link elements with base path
+			document.addEventListener('DOMContentLoaded', function() {
+				var base = window.__BASE_PATH__ || '';
+				var links = document.querySelectorAll('link[data-base-href]');
+				links.forEach(function(link) {
+					link.href = base + link.getAttribute('data-base-href');
+				});
+			});
+		</script>
+		<link rel="icon" type="image/png" data-base-href="/static/favicon.png" href="/static/favicon.png" crossorigin="use-credentials" />
 		<link
 			rel="icon"
 			type="image/png"
+			data-base-href="/static/favicon-96x96.png"
 			href="/static/favicon-96x96.png"
 			sizes="96x96"
 			crossorigin="use-credentials"
@@ -13,17 +48,19 @@
 		<link
 			rel="icon"
 			type="image/svg+xml"
+			data-base-href="/static/favicon.svg"
 			href="/static/favicon.svg"
 			crossorigin="use-credentials"
 		/>
-		<link rel="shortcut icon" href="/static/favicon.ico" crossorigin="use-credentials" />
+		<link rel="shortcut icon" data-base-href="/static/favicon.ico" href="/static/favicon.ico" crossorigin="use-credentials" />
 		<link
 			rel="apple-touch-icon"
 			sizes="180x180"
+			data-base-href="/static/apple-touch-icon.png"
 			href="/static/apple-touch-icon.png"
 			crossorigin="use-credentials"
 		/>
-		<link rel="manifest" href="/manifest.json" crossorigin="use-credentials" />
+		<link rel="manifest" data-base-href="/manifest.json" href="/manifest.json" crossorigin="use-credentials" />
 		<meta
 			name="viewport"
 			content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover"
@@ -31,8 +68,18 @@
 		<meta name="theme-color" content="#171717" />
 		<meta name="robots" content="noindex,nofollow" />
 
-		<script src="/static/loader.js" defer crossorigin="use-credentials"></script>
-		<link rel="stylesheet" href="/static/custom.css" crossorigin="use-credentials" />
+		<link rel="stylesheet" data-base-href="/static/custom.css" href="/static/custom.css" crossorigin="use-credentials" />
+
+		<script>
+			// Load the loader.js script dynamically with base path
+			(function() {
+				var script = document.createElement('script');
+				script.src = (window.__BASE_PATH__ || '') + '/static/loader.js';
+				script.defer = true;
+				script.crossOrigin = 'use-credentials';
+				document.head.appendChild(script);
+			})();
+		</script>
 
 		<script>
 			function resizeIframe(obj) {
@@ -85,12 +132,13 @@
 					}
 				});
 				const isDarkMode = document.documentElement.classList.contains('dark');
+				const basePath = window.__BASE_PATH__ || '';
 
 				const logo = document.createElement('img');
 				logo.id = 'logo';
 				logo.style =
 					'position: absolute; width: auto; height: 6rem; top: 44%; left: 50%; transform: translateX(-50%); display:block;';
-				logo.src = isDarkMode ? '/static/splash-dark.png' : '/static/splash.png';
+				logo.src = isDarkMode ? basePath + '/static/splash-dark.png' : basePath + '/static/splash.png';
 
 				document.addEventListener('DOMContentLoaded', function () {
 					const splash = document.getElementById('splash-screen');
@@ -138,9 +186,18 @@
 				<img
 					id="logo-her"
 					style="width: auto; height: 13rem"
+					data-base-src="/static/splash.png"
 					src="/static/splash.png"
 					class="animate-pulse-fast"
 				/>
+				<script>
+					(function() {
+						var img = document.getElementById('logo-her');
+						if (img && window.__BASE_PATH__) {
+							img.src = window.__BASE_PATH__ + img.getAttribute('data-base-src');
+						}
+					})();
+				</script>
 
 				<div style="position: relative; width: 24rem; margin-top: 0.5rem">
 					<div
